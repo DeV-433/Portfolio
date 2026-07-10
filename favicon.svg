@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" fill="#171813"/>
+  <rect x="4" y="4" width="56" height="56" fill="none" stroke="#ef5a32" stroke-width="2"/>
+  <text
+    x="32"
+    y="34"
+    fill="#f3eddf"
+    font-family="Fraunces, Georgia, 'Times New Roman', serif"
+    font-size="34"
+    font-weight="650"
+    letter-spacing="-2"
+    text-anchor="middle"
+    dominant-baseline="central"
+  >DV</text>
+</svg>
