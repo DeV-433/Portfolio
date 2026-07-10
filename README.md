@@ -1,3 +1,3 @@
 # Portfolio
 
-A personal portfolio website for Devanshu Verma, showcasing AI, data science, and software projects.
+A personal portfolio website of me, showcasing my AI, data science, and software projects.
