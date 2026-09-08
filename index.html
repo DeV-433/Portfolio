@@ -1,12 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f3eddf" />
+    <meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#090a0c" media="(prefers-color-scheme: dark)" />
     <meta
       name="description"
-      content="Devanshu Verma — Data Science & AI engineer building agentic, RAG-powered systems. Creator of Codrix.ai."
+      content="Devanshu Verma — AI engineer building agentic, RAG-powered systems. Creator of Codrix.ai, a code intelligence platform that answers questions about any GitHub repository."
     />
     <meta property="og:title" content="Devanshu Verma — AI Engineer & Builder" />
     <meta
@@ -18,290 +19,316 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,650;9..144,700&family=Manrope:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,450&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("theme");
+          if (stored === "dark" || stored === "light") {
+            document.documentElement.dataset.theme = stored;
+          } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            document.documentElement.dataset.theme = "dark";
+          }
+        } catch (e) {}
+      })();
+    </script>
     <link rel="stylesheet" href="styles.css" />
     <script src="script.js" defer></script>
-    <title>Devanshu Verma — Building Machines That Reason</title>
+    <title>Devanshu Verma — AI Engineer & Builder</title>
   </head>
   <body>
-    <div class="loader" data-loader aria-hidden="true">
-      <div class="loader-inner">
-        <span class="loader-status" data-loader-status>Indexing repository…</span>
-        <div class="loader-bar"><i></i></div>
+    <div class="boot" data-boot aria-hidden="true">
+      <div class="boot-panel">
+        <div class="boot-top">
+          <span class="boot-dots"><i></i><i></i><i></i></span>
+          <span class="boot-path">~/portfolio — initializing</span>
+        </div>
+        <ol class="boot-lines" data-boot-lines>
+          <li>loading modules</li>
+          <li>parsing tree-sitter grammars</li>
+          <li>warming vector index</li>
+          <li>connecting agent runtime</li>
+        </ol>
+        <div class="boot-bar" aria-hidden="true"><i data-boot-bar></i></div>
+        <p class="boot-status" data-boot-status>booting…</p>
       </div>
     </div>
     <a class="skip-link" href="#main-content">Skip to content</a>
-    <div class="scroll-progress" aria-hidden="true"><span></span></div>
+
+    <div class="ambient" aria-hidden="true">
+      <div class="ambient-blob blob-a"></div>
+      <div class="ambient-blob blob-b"></div>
+      <div class="ambient-grid"></div>
+      <div class="ambient-glow" data-mouse-glow></div>
+    </div>
+    <div class="scroll-progress" aria-hidden="true"><span data-progress></span></div>
+    <div class="cursor-dot" aria-hidden="true" data-cursor-dot></div>
+    <div class="cursor-ring" aria-hidden="true" data-cursor-ring></div>
 
     <header class="site-header" data-header>
-      <a class="brand" href="#top" aria-label="Devanshu Verma home">
-        <span>Devanshu Verma</span>
-      </a>
-      <nav class="desktop-nav" aria-label="Primary navigation">
-        <a href="#skills">Skills</a>
-        <a href="#projects">Projects</a>
-        <a href="#achievements">Achievements</a>
-        <a href="#contact">Contact</a>
-      </nav>
-      <a
-        class="header-link"
-        href="https://drive.google.com/file/d/13dw4Y_W2PxoA2IUw-eVa0w8PFTUMsYmg/view?usp=sharing"
-        target="_blank"
-        rel="noreferrer"
-      >
-        Resume <span aria-hidden="true">↗</span>
-      </a>
-      <details class="mobile-menu" data-mobile-menu>
-        <summary aria-label="Open navigation menu">
-          <span>Menu</span>
-          <span class="mobile-menu-icon" aria-hidden="true"><i></i><i></i></span>
-        </summary>
-        <nav class="mobile-menu-panel" aria-label="Mobile primary navigation">
-          <a href="#skills">Skills <span>01</span></a>
-          <a href="#projects">Projects <span>02</span></a>
-          <a href="#achievements">Achievements <span>03</span></a>
-          <a href="#contact">Contact <span>04</span></a>
+      <div class="header-inner">
+        <a class="brand" href="#top" aria-label="Devanshu Verma — home">
+          <span class="brand-name">Devanshu Verma</span>
+        </a>
+        <nav class="desktop-nav" aria-label="Primary">
+          <a href="#about" data-nav-link>About</a>
+          <a href="#stack" data-nav-link>Stack</a>
+          <a href="#work" data-nav-link>Work</a>
+          <a href="#journey" data-nav-link>Journey</a>
+          <a href="#contact" data-nav-link>Contact</a>
+        </nav>
+        <div class="header-actions">
+          <span class="header-status" aria-hidden="true"><i></i>Open to work</span>
           <a
-            class="mobile-menu-resume"
+            class="header-resume"
             href="https://drive.google.com/file/d/13dw4Y_W2PxoA2IUw-eVa0w8PFTUMsYmg/view?usp=sharing"
             target="_blank"
             rel="noreferrer"
           >
-            Resume <span aria-hidden="true">&nearr;</span>
+            Résumé<span aria-hidden="true">↗</span>
           </a>
-        </nav>
-      </details>
+          <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle dark mode" aria-pressed="false">
+            <span class="theme-icon theme-icon-sun" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/></svg>
+            </span>
+            <span class="theme-icon theme-icon-moon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.2 14.5A8.2 8.2 0 0 1 9.5 3.8a8.2 8.2 0 1 0 10.7 10.7Z"/></svg>
+            </span>
+          </button>
+          <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-panel" data-menu-toggle>
+            <span aria-hidden="true"><i></i><i></i></span>
+            Menu
+          </button>
+        </div>
+      </div>
+      <nav class="mobile-panel" id="mobile-panel" aria-label="Mobile" data-mobile-panel hidden>
+        <a href="#about">About <span>01</span></a>
+        <a href="#stack">Stack <span>02</span></a>
+        <a href="#work">Work <span>03</span></a>
+        <a href="#journey">Journey <span>04</span></a>
+        <a href="#contact">Contact <span>05</span></a>
+        <a
+          class="mobile-resume"
+          href="https://drive.google.com/file/d/13dw4Y_W2PxoA2IUw-eVa0w8PFTUMsYmg/view?usp=sharing"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Résumé <span aria-hidden="true">↗</span>
+        </a>
+      </nav>
     </header>
 
     <main id="main-content">
-      <section class="hero" id="top">
-        <div class="hero-grid">
-          <div class="hero-copy" data-reveal>
-            <div class="eyebrow-row">
-              <span class="eyebrow">AI / ML Engineer · Data Science</span>
-              <span class="open-badge"><i></i> Open to opportunities</span>
+      <!-- ============ HERO ============ -->
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="hero-inner">
+          <div class="hero-copy">
+            <div class="eyebrow-row" data-reveal>
+              <span class="eyebrow"><i aria-hidden="true"></i>Open to internships</span>
+              <span class="hero-meta">Raipur, India · <span data-clock>–</span> IST</span>
             </div>
-            <h1>I teach machines<br /><em>to read code.</em></h1>
-            <p class="hero-deck">
-              I'm <strong>Devanshu Verma</strong> — I build agentic, RAG-powered systems that
-              understand codebases, sustain multi-step reasoning, and ship as real,
-              production-grade products.
+            <h1 id="hero-title" data-reveal data-delay="90">
+              I build AI systems that<br />
+              <em class="accent-serif">read code,</em> reason about it<br />
+              <em class="accent-serif">&amp; explain it.</em>
+            </h1>
+            <p class="hero-deck" data-reveal data-delay="180">
+              I'm <strong>Devanshu Verma</strong> — a Data Science &amp; AI undergrad at IIIT Naya
+              Raipur who ships agentic, RAG-powered products end-to-end. My flagship,
+              <strong>Codrix.ai</strong>, indexes any GitHub repo and answers questions about it
+              conversationally.
             </p>
-            <p class="authors">
-              RAG · LLMs · Agentic workflows · Python · React · AWS Bedrock
-            </p>
-            <div class="hero-actions">
-              <a class="button button-primary" href="#projects">
-                See the work <span aria-hidden="true">↓</span>
+            <div class="hero-actions" data-reveal data-delay="260">
+              <a class="btn btn-primary" href="#work" data-magnetic>
+                Explore my work <span class="btn-arrow" aria-hidden="true">→</span>
               </a>
-              <a
-                class="button button-ghost"
-                href="https://github.com/DeV-433"
-                target="_blank"
-                rel="noreferrer"
-              >
-                GitHub profile <span aria-hidden="true">↗</span>
+              <a class="btn btn-ghost" href="#contact" data-magnetic data-scroll="center">
+                Get in touch <span class="btn-arrow" aria-hidden="true">→</span>
               </a>
             </div>
           </div>
 
-          <div class="experiment-wrap" data-reveal data-delay="140">
-            <div class="experiment-shadow" aria-hidden="true"></div>
-            <article class="experiment-card" aria-labelledby="experiment-title">
-              <div class="experiment-topline">
-                <span>CODRIX.AI / PROMPT-TO-DIAGRAM</span>
-                <span class="live-indicator"><i></i> INTERACTIVE</span>
+          <div class="hero-visual" data-reveal data-delay="200">
+            <article class="terminal-card" data-tilt aria-labelledby="terminal-title">
+              <div class="terminal-top">
+                <span class="terminal-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="terminal-path">codrix.ai — index &amp; query</span>
+                <span class="terminal-live"><i aria-hidden="true"></i>LIVE</span>
               </div>
-              <div class="experiment-heading">
-                <div>
-                  <p>Code intelligence engine</p>
-                  <h2 id="experiment-title">One repo. Any diagram.</h2>
+              <div class="terminal-body">
+                <div class="term-io">
+                  <p class="term-line"><span class="term-prompt" aria-hidden="true">$</span> index github.com/any/repository</p>
+                  <ol class="term-steps" data-pipeline>
+                    <li><b>01</b><span>Parse — tree-sitter AST, 36 languages</span><i aria-hidden="true"></i></li>
+                    <li><b>02</b><span>Embed — Jina AI semantic vectors</span><i aria-hidden="true"></i></li>
+                    <li><b>03</b><span>Retrieve — grounded context, not guesses</span><i aria-hidden="true"></i></li>
+                    <li><b>04</b><span>Reason — Claude on Bedrock, 6-round loop</span><i aria-hidden="true"></i></li>
+                    <li><b>05</b><span>Stream — answers over SSE</span><i aria-hidden="true"></i></li>
+                  </ol>
+                </div>
+                <div class="term-result">
+                  <p class="term-line term-answer">
+                    <span class="term-prompt" aria-hidden="true">≫</span>
+                    <span data-typewriter aria-hidden="true">Answering with retrieved code…</span>
+                  </p>
+                  <div class="term-meta">
+                    <span class="term-chip"><i aria-hidden="true"></i><b data-grounded>tree-sitter · AST</b></span>
+                    <span class="term-chip"><i aria-hidden="true"></i><b>RAG · Bedrock</b></span>
+                    <span class="term-chip"><i aria-hidden="true"></i><b>SSE stream</b></span>
+                  </div>
                 </div>
               </div>
-              <p class="experiment-question">github.com/any/repository — indexed &amp; ready.</p>
-              <ol class="constraint-stack" data-pipeline>
-                <li><b>01</b><span>Parse — tree-sitter AST across 36 languages.</span></li>
-                <li><b>02</b><span>Embed — Jina AI vectors for semantic search.</span></li>
-                <li><b>03</b><span>Retrieve — RAG pipeline on Amazon Bedrock.</span></li>
-                <li><b>04</b><span>Reason — Claude Sonnet 4, up to 6 tool-use rounds.</span></li>
-                <li><b>05</b><span>Stream — Server-Sent Events, live to the browser.</span></li>
-              </ol>
-              <div class="experiment-result">
-                <div>
-                  <span class="result-label">Generated diagram type</span>
-                  <strong data-mode-name>Architecture</strong>
-                </div>
-                <span class="delta" data-mode-count>mode 1 / 3</span>
-              </div>
-              <div class="cascade-viz hero-viz" aria-hidden="true" data-mode-viz>
-                <span>services</span><i>→</i><span>stores</span><i>→</i><span class="good-node">data flow</span>
-              </div>
-              <button class="shuffle-button" type="button" data-cycle>
-                <span class="shuffle-icon" aria-hidden="true">⇄</span>
-                <span data-cycle-label>Cycle the diagram mode</span>
-              </button>
-              <p class="experiment-footnote">
-                Diagrams are generated from live code via LLM inference — then edited in
-                natural language.
-              </p>
+              <span class="card-glow" aria-hidden="true"></span>
             </article>
           </div>
         </div>
-        <a class="scroll-cue" href="#skills">
-          <span>Explore the stack</span>
-          <i aria-hidden="true"></i>
+        <a class="scroll-cue" href="#about" aria-label="Scroll to the About section">
+          <span>Scroll</span><i aria-hidden="true"></i>
         </a>
       </section>
 
-      <section class="manifesto section-pad" aria-labelledby="manifesto-title">
-        <div class="section-kicker" data-reveal>
-          <span>01</span>
-          <p>The premise</p>
+      <!-- ============ ABOUT ============ -->
+      <section class="section" id="about" aria-labelledby="about-title">
+        <div class="section-head" data-reveal>
+          <span class="section-index">01</span>
+          <p class="section-label">About</p>
+          <span class="section-rule" aria-hidden="true"></span>
         </div>
-        <div class="manifesto-grid">
-          <h2 id="manifesto-title" data-reveal>
-            A demo is not enough.<br />The <em>system</em> must survive contact with production.
+        <div class="about-grid">
+          <h2 id="about-title" data-reveal>
+            Anyone can call an LLM. I build the
+            <em class="accent-serif">machinery around it.</em>
           </h2>
-          <div class="manifesto-copy" data-reveal data-delay="100">
+          <div class="about-copy" data-reveal data-delay="120">
             <p>
-              Anyone can call an LLM. I care about the machinery around it: AST-level code
-              understanding, retrieval that actually retrieves, agent loops that know when to
-              stop, and backends that degrade gracefully — exponential backoff, automatic
-              fallbacks, real-time streaming.
+              Retrieval that actually retrieves. Agent loops that know when to stop. Backends
+              that degrade gracefully — exponential backoff, automatic fallbacks, real-time
+              streaming. That's where I spend my time.
             </p>
-            <div class="margin-note">
-              <span>How I build</span>
-              <p>Every layer earns its place — from the vector index to the retry policy.</p>
-            </div>
+            <p class="muted">
+              Pre-final year, Data Science &amp; Artificial Intelligence at IIIT Naya Raipur —
+              turning coursework in ML, systems, and algorithms into shipped software like
+              Codrix.ai.
+            </p>
           </div>
+        </div>
+        <div class="fact-grid">
+          <article class="fact" data-reveal>
+            <span class="fact-label">Focus</span>
+            <h3>Agentic AI &amp; retrieval</h3>
+            <p>RAG pipelines, LLM orchestration, tool-use agents — and evaluation that keeps them honest.</p>
+          </article>
+          <article class="fact" data-reveal data-delay="90">
+            <span class="fact-label">Systems</span>
+            <h3>Backends built to survive</h3>
+            <p>Go and Node services on AWS — streaming APIs, retry policies, fallbacks designed first.</p>
+          </article>
+          <article class="fact" data-reveal data-delay="180">
+            <span class="fact-label">Now</span>
+            <h3>B.Tech · IIIT Naya Raipur</h3>
+            <p>Data Science &amp; AI, expected May 2028 · CGPA 8.67/10. Coursework applied directly to real builds.</p>
+          </article>
         </div>
       </section>
 
-      <section class="benchmark section-pad" id="skills" aria-labelledby="skills-title">
-        <div class="section-kicker light" data-reveal>
-          <span>02</span>
-          <p>Technical skills</p>
+      <!-- ============ STACK ============ -->
+      <section class="section stack" id="stack" aria-labelledby="stack-title">
+        <div class="section-head" data-reveal>
+          <span class="section-index">02</span>
+          <p class="section-label">Stack</p>
+          <span class="section-rule" aria-hidden="true"></span>
         </div>
-        <div class="section-heading light-heading" data-reveal>
-          <h2 id="skills-title">24 technologies.<br /><em>Five modes of building.</em></h2>
-          <p>
-            A stack assembled project by project — weighted toward agentic AI, retrieval,
-            and the infrastructure that keeps them running.
+        <div class="stack-head">
+          <h2 id="stack-title" data-reveal>24 tools. <em class="accent-serif">One way of building.</em></h2>
+          <p data-reveal data-delay="100">
+            A stack assembled project by project — weighted toward agentic AI and retrieval,
+            with deliberate depth in the languages and infrastructure underneath.
           </p>
         </div>
-
-        <div class="benchmark-grid">
-          <div class="distribution-card" data-reveal>
-            <div
-              class="distribution-chart"
-              role="img"
-              aria-label="Skill distribution across five domains: AI and ML, frameworks and libraries, databases, programming languages, and developer tools"
-            >
-              <div class="chart-core">
-                <strong>24</strong>
-                <span>technologies</span>
-              </div>
-            </div>
-            <div class="distribution-caption">
-              <span>Stack composition</span>
-              <p>AI-heavy by design, with deliberate depth in retrieval, orchestration, and the languages underneath.</p>
-            </div>
-          </div>
-
-          <div class="category-list" data-reveal data-delay="100">
-            <article class="category-row">
-              <span class="category-number">05</span>
-              <div>
-                <h3>AI / ML</h3>
-                <p>RAG · LLMs · Agentic Workflows · PyTorch · TensorFlow</p>
-              </div>
-              <div class="category-glyph tree-glyph" aria-hidden="true"><i></i><i></i><i></i></div>
-            </article>
-            <article class="category-row">
-              <span class="category-number">06</span>
-              <div>
-                <h3>Frameworks &amp; libraries</h3>
-                <p>FastAPI · React · Node.js · LangChain · LangGraph · Pydantic AI</p>
-              </div>
-              <div class="category-glyph seat-glyph" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-            </article>
-            <article class="category-row">
-              <span class="category-number">05</span>
-              <div>
-                <h3>Databases</h3>
-                <p>MySQL · Neo4j · ChromaDB · Pinecone · FAISS</p>
-              </div>
-              <div class="category-glyph line-glyph" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-            </article>
-            <article class="category-row">
-              <span class="category-number">04</span>
-              <div>
-                <h3>Programming languages</h3>
-                <p>C++ · Java · Python · SQL</p>
-              </div>
-              <div class="category-glyph code-glyph" aria-hidden="true">{ }</div>
-            </article>
-            <article class="category-row">
-              <span class="category-number">04</span>
-              <div>
-                <h3>Developer tools</h3>
-                <p>Git · Docker · VSCode · Arduino IDE</p>
-              </div>
-              <div class="category-glyph code-glyph" aria-hidden="true">$_</div>
-            </article>
-          </div>
+        <div class="stack-groups">
+          <section class="stack-group" data-reveal>
+            <h3 class="stack-group-label">AI / ML</h3>
+            <ul class="stack-items">
+              <li><span>RAG</span></li><li><span>LLMs</span></li><li><span>Agentic workflows</span></li>
+              <li><span>PyTorch</span></li><li><span>TensorFlow</span></li>
+            </ul>
+          </section>
+          <section class="stack-group" data-reveal data-delay="80">
+            <h3 class="stack-group-label">Frameworks</h3>
+            <ul class="stack-items">
+              <li><span>FastAPI</span></li><li><span>React</span></li><li><span>Node.js</span></li>
+              <li><span>LangChain</span></li><li><span>LangGraph</span></li><li><span>Pydantic AI</span></li>
+            </ul>
+          </section>
+          <section class="stack-group" data-reveal data-delay="160">
+            <h3 class="stack-group-label">Databases</h3>
+            <ul class="stack-items">
+              <li><span>MySQL</span></li><li><span>Neo4j</span></li><li><span>ChromaDB</span></li>
+              <li><span>Pinecone</span></li><li><span>FAISS</span></li>
+            </ul>
+          </section>
+          <section class="stack-group" data-reveal data-delay="240">
+            <h3 class="stack-group-label">Languages</h3>
+            <ul class="stack-items">
+              <li><span>Python</span></li><li><span>C++</span></li><li><span>Java</span></li><li><span>SQL</span></li>
+            </ul>
+          </section>
+          <section class="stack-group" data-reveal data-delay="320">
+            <h3 class="stack-group-label">Tools</h3>
+            <ul class="stack-items">
+              <li><span>Git</span></li><li><span>Docker</span></li><li><span>VS Code</span></li><li><span>Arduino IDE</span></li>
+            </ul>
+          </section>
         </div>
-
-        <div class="benchmark-specs" data-reveal>
-          <div><span>Focus</span><strong>Agentic AI &amp; RAG</strong></div>
-          <div><span>Daily drivers</span><strong>Python · C++</strong></div>
-          <div><span>Vector stores</span><strong>ChromaDB · Pinecone · FAISS</strong></div>
-          <div><span>Ships with</span><strong>Docker · Git</strong></div>
+        <div class="stack-daily" data-reveal>
+          <p><span>Daily drivers</span><strong>Python · C++</strong></p>
+          <p><span>Vector memory</span><strong>ChromaDB · Pinecone · FAISS</strong></p>
+          <p><span>Ships with</span><strong>Docker · Git</strong></p>
+          <p><span>Focus</span><strong>Agentic AI &amp; RAG</strong></p>
         </div>
       </section>
 
-      <section class="results section-pad" id="projects" aria-labelledby="projects-title">
-        <div class="section-kicker" data-reveal>
-          <span>03</span>
-          <p>Featured project</p>
+      <!-- ============ WORK ============ -->
+      <section class="section work" id="work" aria-labelledby="work-title">
+        <div class="section-head" data-reveal>
+          <span class="section-index">03</span>
+          <p class="section-label">Work</p>
+          <span class="section-rule" aria-hidden="true"></span>
         </div>
-        <div class="section-heading" data-reveal>
-          <h2 id="projects-title">
-            <span class="project-title-row">
-              Codrix.ai
-              <a
-                class="live-button"
-                href="https://teamtajmahal.vercel.app/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                See it live <span aria-hidden="true">↗</span>
-              </a>
-            </span>
-            <em>talk to any repository.</em>
+        <div class="work-head">
+          <h2 id="work-title" data-reveal>
+            Codrix.ai — <em class="accent-serif">talk to any repository.</em>
           </h2>
-          <p>
-            A code intelligence platform that indexes a GitHub repository, answers questions
-            about it conversationally, and draws its diagrams on demand. Switch the layer to
-            see how it's built.
+          <p data-reveal data-delay="100">
+            My flagship project: a code intelligence platform that indexes any public GitHub
+            repository, answers questions about it conversationally, and draws its diagrams
+            on demand.
           </p>
+          <div class="work-cta" data-reveal data-delay="160">
+            <a class="btn btn-primary" href="https://teamtajmahal.vercel.app/" target="_blank" rel="noreferrer" data-magnetic>
+              See it live <span class="btn-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="btn btn-ghost" href="https://github.com/DeV-433" target="_blank" rel="noreferrer" data-magnetic>
+              GitHub profile <span class="btn-arrow" aria-hidden="true">↗</span>
+            </a>
+          </div>
         </div>
 
-        <div class="project-shell" data-reveal>
-          <div class="project-toolbar">
-            <div class="project-tabs" role="tablist" aria-label="Project layer">
-              <button class="project-tab active" type="button" role="tab" aria-selected="true" data-layer="engine">Engine</button>
-              <button class="project-tab" type="button" role="tab" aria-selected="false" data-layer="pipeline">Agentic pipeline</button>
-              <button class="project-tab" type="button" role="tab" aria-selected="false" data-layer="backend">Backend</button>
-              <button class="project-tab" type="button" role="tab" aria-selected="false" data-layer="diagrams">Diagrams</button>
+        <div class="work-shell" data-reveal>
+          <div class="work-toolbar">
+            <div class="work-tabs" role="tablist" aria-label="Project layer">
+              <button class="work-tab active" type="button" role="tab" aria-selected="true" id="tab-engine" aria-controls="work-body" data-layer="engine">Engine</button>
+              <button class="work-tab" type="button" role="tab" aria-selected="false" id="tab-pipeline" aria-controls="work-body" tabindex="-1" data-layer="pipeline">Agentic pipeline</button>
+              <button class="work-tab" type="button" role="tab" aria-selected="false" id="tab-backend" aria-controls="work-body" tabindex="-1" data-layer="backend">Backend</button>
+              <button class="work-tab" type="button" role="tab" aria-selected="false" id="tab-diagrams" aria-controls="work-body" tabindex="-1" data-layer="diagrams">Diagrams</button>
             </div>
-            <p class="project-note" data-layer-note>contextplus — the custom code intelligence engine.</p>
+            <p class="work-note" data-layer-note>contextplus — the code intelligence engine.</p>
           </div>
-          <div class="project-layout">
-            <div class="project-body" aria-live="polite">
-              <span class="project-layer-index" data-layer-index>LAYER 01 / CODE INTELLIGENCE</span>
+          <div class="work-layout">
+            <div class="work-body" id="work-body" role="tabpanel" aria-live="polite">
+              <span class="work-layer-index" data-layer-index>LAYER 01 / CODE INTELLIGENCE</span>
               <h3 data-layer-title>contextplus</h3>
               <p data-layer-copy>
                 A custom code intelligence engine using tree-sitter AST parsing across 36
@@ -315,130 +342,145 @@
                 <li>semantic search</li>
               </ul>
             </div>
-            <aside class="project-insight">
-              <span class="insight-label">Built with</span>
+            <aside class="work-aside">
+              <span class="aside-label">Built with</span>
               <strong>Go · React 18</strong>
               <p>Node.js · AWS Bedrock · tree-sitter · RAG · Docker</p>
-              <div class="insight-rule"></div>
-              <span class="insight-mini">See it running</span>
-              <div class="insight-links">
-                <a href="https://github.com/DeV-433" target="_blank" rel="noreferrer">Source ↗</a>
-                <a href="https://teamtajmahal.vercel.app/" target="_blank" rel="noreferrer">Live demo ↗</a>
+              <div class="aside-rule" aria-hidden="true"></div>
+              <span class="aside-mini">Deployed on AWS EC2 · streaming over SSE</span>
+              <div class="aside-links">
+                <a href="https://teamtajmahal.vercel.app/" target="_blank" rel="noreferrer">Live demo <span aria-hidden="true">↗</span></a>
+                <a href="https://github.com/DeV-433" target="_blank" rel="noreferrer">Source <span aria-hidden="true">↗</span></a>
               </div>
             </aside>
           </div>
-          <div class="project-source">
+          <div class="work-source">
             <span>Go · React 18 · Node.js · AWS Bedrock · tree-sitter · RAG · Docker</span>
-            <span>Deployed on AWS EC2</span>
+            <span>Built for Amazon's AI for Bharat Hackathon</span>
           </div>
+        </div>
+
+        <div class="work-facts">
+          <article class="fact" data-reveal data-tilt>
+            <span class="fact-label">The problem</span>
+            <h3>Codebases are unread</h3>
+            <p>Large repos are opaque — onboarding means scrolling files, guessing architecture, and pinging teammates. Codrix makes a repo explain itself.</p>
+            <span class="card-glow" aria-hidden="true"></span>
+          </article>
+          <article class="fact" data-reveal data-delay="90" data-tilt>
+            <span class="fact-label">The approach</span>
+            <h3>Grounded answers, streamed live</h3>
+            <p>Exponential backoff on Bedrock calls, automatic Groq LLaMA fallback, and Server-Sent Events so long agent runs stay transparent — never a frozen spinner.</p>
+            <span class="card-glow" aria-hidden="true"></span>
+          </article>
+          <article class="fact" data-reveal data-delay="180" data-tilt>
+            <span class="fact-label">Why it's interesting</span>
+            <h3>Diagrams from live code</h3>
+            <p>A Prompt-to-Diagram engine renders Architecture, UML Sequence, and ER views from the actual codebase — then refines them in plain English.</p>
+            <span class="card-glow" aria-hidden="true"></span>
+          </article>
         </div>
       </section>
 
-      <section class="findings section-pad" id="achievements" aria-labelledby="achievements-title">
-        <div class="section-kicker light" data-reveal>
-          <span>04</span>
-          <p>Achievements</p>
+      <!-- ============ JOURNEY ============ -->
+      <section class="section journey" id="journey" aria-labelledby="journey-title">
+        <div class="section-head" data-reveal>
+          <span class="section-index">04</span>
+          <p class="section-label">Journey</p>
+          <span class="section-rule" aria-hidden="true"></span>
         </div>
-        <div class="section-heading light-heading" data-reveal>
-          <h2 id="achievements-title">Built for a hackathon.<br /><em>Engineered like a product.</em></h2>
-          <p>
+        <div class="journey-head">
+          <h2 id="journey-title" data-reveal>
+            Built for a hackathon. <em class="accent-serif">Engineered like a product.</em>
+          </h2>
+          <p data-reveal data-delay="100">
             Amazon's AI for Bharat Hackathon — a nationwide competition for AI-driven
             solutions for India, judged on real working prototypes.
           </p>
         </div>
-
-        <div class="failure-grid">
-          <article class="failure-card failure-primary" data-reveal>
-            <span class="failure-index">01 / AMAZON'S AI FOR BHARAT HACKATHON</span>
-            <div class="failure-stat">
-              <strong>Prototype<sup>phase</sup></strong>
-              <span>advanced to the prototype submission phase, nationwide</span>
+        <ol class="timeline">
+          <li data-reveal>
+            <span class="t-dot" aria-hidden="true"></span>
+            <div class="t-card">
+              <span class="t-date">2023 — 2028 · IIIT Naya Raipur</span>
+              <h3>B.Tech, Data Science &amp; Artificial Intelligence</h3>
+              <p>Expected May 2028 · CGPA 8.67/10. Foundations in ML, algorithms, and systems — applied directly to personal builds like Codrix.ai.</p>
+              <ul class="tag-list"><li>Python</li><li>C++</li><li>Machine Learning</li></ul>
             </div>
-            <p>
-              Developed and presented Codrix.ai as the hackathon entry — intelligent code
-              analysis and Q&amp;A built end-to-end on Amazon Web Services, and carried
-              through the selection rounds of a India-wide competition.
-            </p>
-            <div class="cascade-viz" aria-hidden="true">
-              <span>idea</span><i>→</i><span>working build</span><i>→</i><span class="bad-node">prototype phase</span>
+          </li>
+          <li data-reveal data-delay="90">
+            <span class="t-dot" aria-hidden="true"></span>
+            <div class="t-card">
+              <span class="t-date">Hackathon · Nationwide</span>
+              <h3>Amazon AI for Bharat — prototype phase</h3>
+              <p>Advanced to the prototype submission phase of Amazon's AI for Bharat Hackathon — presented Codrix.ai end-to-end, built on AWS Bedrock, EC2, and the Converse API.</p>
+              <ul class="tag-list"><li>AWS Bedrock</li><li>EC2</li><li>Converse API</li></ul>
             </div>
-          </article>
-
-          <article class="failure-card" data-reveal data-delay="80">
-            <span class="failure-index">02 / AWS-NATIVE STACK</span>
-            <div class="failure-stat compact-stat">
-              <strong>AWS<sup>×3</sup></strong>
-              <span>Bedrock · EC2 · Converse API</span>
+          </li>
+          <li data-reveal data-delay="180">
+            <span class="t-dot" aria-hidden="true"></span>
+            <div class="t-card">
+              <span class="t-date">Flagship build · Live</span>
+              <h3>Codrix.ai — production-grade RAG</h3>
+              <p>Real-time streaming, multi-round agent reasoning, and multi-language code intelligence — deployed, demoed, and still evolving.</p>
+              <ul class="tag-list"><li>Go</li><li>React</li><li>RAG</li><li>Docker</li></ul>
             </div>
-            <p>
-              Leveraged Amazon Bedrock for LLM inference, EC2 for the Go backend, and the
-              Bedrock Converse API for the multi-round conversational loop.
-            </p>
-          </article>
-
-          <article class="failure-card" data-reveal data-delay="160">
-            <span class="failure-index">03 / PRODUCTION-GRADE RAG</span>
-            <div class="failure-stat compact-stat">
-              <strong>Live<sup>SSE</sup></strong>
-              <span>real-time streaming, retries, and fallbacks</span>
-            </div>
-            <p>
-              A RAG pipeline with real-time streaming, exponential backoff, automatic Groq
-              LLaMA fallback, and multi-language code intelligence.
-            </p>
-          </article>
+          </li>
+        </ol>
+        <div class="proof-strip" data-reveal>
+          <div><span>Amazon</span><strong>AI for Bharat — prototype phase</strong></div>
+          <div><span>Stack</span><strong>Bedrock · EC2 · Converse API</strong></div>
+          <div><span>Elsewhere</span><strong>
+            <a href="https://leetcode.com/u/DevanshuV79" target="_blank" rel="noreferrer">LeetCode</a> ·
+            <a href="https://x.com/devanshu71" target="_blank" rel="noreferrer">X</a>
+          </strong></div>
         </div>
       </section>
 
-      <section class="access section-pad" id="contact" aria-labelledby="contact-title">
-        <div class="access-card" data-reveal>
-          <span class="access-eyebrow">CONTACT · RAIPUR, CHHATTISGARH · IST</span>
-          <h2 id="contact-title">Let's build<br /><em>something sharp.</em></h2>
+      <!-- ============ CONTACT ============ -->
+      <section class="section contact" id="contact" aria-labelledby="contact-title">
+        <div class="contact-card" data-reveal data-tilt>
+          <span class="contact-eyebrow">Contact · Raipur, Chhattisgarh · IST</span>
+          <h2 id="contact-title">Let's build <em class="accent-serif">something sharp.</em></h2>
           <p>
-            I'm actively <strong>open to work</strong> and looking for <strong>internships</strong>
-            where I can build real AI systems end-to-end. If you have an opening, a research
-            problem, a hackathon team, or an agentic product you want shipped — I'd love to talk,
-            and I reply fast.
+            I'm actively <strong>open to work</strong> and looking for
+            <strong>internships</strong> where I can build real AI systems end-to-end.
+            Openings, research problems, hackathon teams, agentic products — I reply fast.
           </p>
-          <div class="access-actions">
-            <a class="button button-primary inverse-button" href="mailto:devanshuverma372@gmail.com">
-              Email me <span aria-hidden="true">↗</span>
+          <div class="contact-actions">
+            <a class="btn btn-primary" href="mailto:devanshuverma372@gmail.com" data-magnetic>
+              Email me <span class="btn-arrow" aria-hidden="true">↗</span>
             </a>
-            <a
-              class="button button-light"
-              href="https://www.linkedin.com/in/devanshu-verma-283b71324"
-              target="_blank"
-              rel="noreferrer"
-            >
-              LinkedIn <span aria-hidden="true">↗</span>
+            <a class="btn btn-ghost" href="https://www.linkedin.com/in/devanshu-verma-283b71324" target="_blank" rel="noreferrer" data-magnetic>
+              LinkedIn <span class="btn-arrow" aria-hidden="true">↗</span>
             </a>
           </div>
           <div class="citation-block">
-            <code>devanshuverma372@gmail.com · github.com/DeV-433 · leetcode.com/u/DevanshuV79</code>
-            <button type="button" data-copy-email aria-label="Copy email address">Copy email</button>
+            <code>devanshuverma372@gmail.com · github.com/DeV-433</code>
+            <button type="button" data-copy-email>Copy email</button>
           </div>
-          <div class="access-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
+          <span class="card-glow" aria-hidden="true"></span>
         </div>
       </section>
     </main>
 
     <footer class="site-footer">
       <div class="footer-top">
-        <a class="brand footer-brand" href="#top">
-          <span>Devanshu Verma</span>
+        <a class="brand" href="#top" aria-label="Back to top">
+          <span class="brand-name">Devanshu Verma</span>
         </a>
         <p>Building agentic systems that read, reason, and ship.</p>
       </div>
       <div class="footer-grid">
         <div>
           <span>Currently</span>
-          <p>B.Tech, Data Science &amp; Artificial Intelligence · IIIT Naya Raipur<br />Pre-final year</p>
+          <p>B.Tech, Data Science &amp; AI · IIIT Naya Raipur<br />Pre-final year · Open to internships</p>
         </div>
         <div>
           <span>Elsewhere</span>
           <p>
-            <a href="https://x.com/devanshu71" target="_blank" rel="noreferrer">x.com/devanshu71</a> ·
-            <a href="https://leetcode.com/u/DevanshuV79" target="_blank" rel="noreferrer">leetcode.com/u/DevanshuV79</a>
+            <a href="https://x.com/devanshu71" target="_blank" rel="noreferrer">X / devanshu71</a><br />
+            <a href="https://leetcode.com/u/DevanshuV79" target="_blank" rel="noreferrer">LeetCode / DevanshuV79</a>
           </p>
         </div>
         <div class="footer-links">
@@ -449,7 +491,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <span>Devanshu Verma · Raipur, Chhattisgarh</span>
+        <span>© <span data-year>2026</span> Devanshu Verma · Raipur, Chhattisgarh</span>
         <span>Designed &amp; built by hand</span>
       </div>
     </footer>
