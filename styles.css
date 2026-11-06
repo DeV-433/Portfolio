@@ -1364,6 +1364,15 @@ html.view-entering body { transition: background-color 450ms ease, color 450ms e
   transition-delay: var(--reveal-delay, 0ms);
 }
 .js :is(h1, h2)[data-reveal].revealed { filter: none; }
+/* The contact card is the finale: a slower, softer blur-in. It's a single
+   element at the end of the page, so the blur costs nothing while scrolling.
+   transform stays in the list so the hover tilt keeps easing. */
+.js .contact-card[data-reveal] {
+  filter: blur(14px);
+  transition: opacity 1600ms var(--ease), translate 1600ms var(--ease),
+    filter 1600ms var(--ease), transform 260ms ease-out;
+}
+.js .contact-card[data-reveal].revealed { filter: none; }
 
 /* ---------- Responsive ---------- */
 
