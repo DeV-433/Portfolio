@@ -4,7 +4,12 @@ const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matc
 const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
 /* ---------- Boot screen (1.5s) ---------- */
-const boot = document.querySelector("[data-boot]");
+let boot = document.querySelector("[data-boot]");
+// Recruiters arriving via ?view=recruiter get straight to the content.
+if (boot && document.documentElement.dataset.view === "recruiter") {
+  boot.remove();
+  boot = null;
+}
 if (boot) {
   // The loader plays over the page top; don't restore a mid-page scroll.
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
@@ -90,26 +95,25 @@ function setTheme(next, origin) {
         duration: 560,
         easing: "cubic-bezier(0.22, 1, 0.36, 1)",
         pseudoElement: expand ? "::view-transition-new(root)" : "::view-transition-old(root)",
+        // Hold the final clip until the View Transition tears down. Without
+        // this, the clip is dropped the moment the animation ends and the
+        // contracted old (light) snapshot flashes back for one frame at the
+        // end of light → dark before the pseudo-elements are removed.
+        fill: "forwards",
       }
     );
   });
-  // Let the View Transition pseudo-elements finish being removed before
-  // restoring the default stacking order. Removing the reverse-transition
-  // class in the same microtask can briefly put the old light snapshot back
-  // on top for one frame at the end of light → dark.
+  // `finished` resolves after the pseudo-elements are gone, so restoring the
+  // default stacking order here can't affect the transition.
   const cleanup = () => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        root.classList.remove("theme-transitioning");
-        root.classList.remove("is-light-to-dark");
-        themeLock = false;
-      });
-    });
+    root.classList.remove("theme-transitioning");
+    root.classList.remove("is-light-to-dark");
+    themeLock = false;
   };
   transition.finished.then(cleanup, cleanup);
 }
 
-themeToggle?.addEventListener("click", (e) => {
+themeToggle?.addEventListener("click", () => {
   const next = root.dataset.theme === "dark" ? "light" : "dark";
   const rect = themeToggle.getBoundingClientRect();
   setTheme(next, { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
@@ -123,27 +127,48 @@ systemDark.addEventListener?.("change", (e) => {
   if (!stored) applyTheme(e.matches ? "dark" : "light");
 });
 
-/* ---------- Mobile menu ---------- */
+/* ---------- Full-screen menu (small screens) ---------- */
 const menuToggle = document.querySelector("[data-menu-toggle]");
+const menuLabel = menuToggle?.querySelector(".menu-label");
 const mobilePanel = document.querySelector("[data-mobile-panel]");
+const pageRegions = [...document.querySelectorAll("main, .site-footer")];
 
-function setMenu(open) {
+function setMenu(open, { focusFirst = false } = {}) {
   if (!menuToggle || !mobilePanel) return;
+  if (open === mobilePanel.classList.contains("is-open")) return;
   menuToggle.setAttribute("aria-expanded", String(open));
-  mobilePanel.hidden = !open;
+  if (menuLabel) menuLabel.textContent = open ? "Close" : "Menu";
+  mobilePanel.classList.toggle("is-open", open);
+  root.classList.toggle("menu-open", open); // locks page scroll
+  pageRegions.forEach((el) => { el.inert = open; }); // nothing behind is reachable
+  if (open) {
+    // Number only the items shown in the current view so the stagger has no gaps.
+    let i = 0;
+    mobilePanel.querySelectorAll(".mobile-kicker, .mobile-links li, .mobile-foot").forEach((el) => {
+      if (el.getClientRects().length) el.style.setProperty("--i", i++);
+    });
+    if (focusFirst) {
+      [...mobilePanel.querySelectorAll(".mobile-links a")].find((a) => a.getClientRects().length)?.focus();
+    }
+  } else if (mobilePanel.contains(document.activeElement)) {
+    menuToggle.focus();
+  }
 }
-menuToggle?.addEventListener("click", () => {
-  setMenu(menuToggle.getAttribute("aria-expanded") !== "true");
-});
-mobilePanel?.querySelectorAll("a").forEach((link) => {
-  link.addEventListener("click", () => setMenu(false));
+menuToggle?.addEventListener("click", (event) => {
+  // event.detail === 0 → opened from the keyboard: move focus into the menu.
+  setMenu(menuToggle.getAttribute("aria-expanded") !== "true", { focusFirst: event.detail === 0 });
 });
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") setMenu(false);
 });
+// Following any in-page link (menu items, the brand) closes the menu first,
+// so the page is scrollable again before the jump.
 document.addEventListener("click", (event) => {
-  if (!mobilePanel || mobilePanel.hidden) return;
-  if (!mobilePanel.contains(event.target) && !menuToggle?.contains(event.target)) setMenu(false);
+  if (event.target.closest('a[href^="#"]')) setMenu(false);
+});
+// The menu only exists below 960px; don't leave the page locked on resize.
+window.matchMedia("(min-width: 961px)").addEventListener("change", (e) => {
+  if (e.matches) setMenu(false);
 });
 
 /* ---------- Centered scroll for select anchor links ---------- */
@@ -203,16 +228,26 @@ if (reducedMotion || !("IntersectionObserver" in window)) {
 const header = document.querySelector("[data-header]");
 const progress = document.querySelector("[data-progress]");
 const navLinks = [...document.querySelectorAll("[data-nav-link]")];
-const sectionEls = ["about", "stack", "work", "journey", "contact"]
-  .map((id) => document.getElementById(id))
-  .filter(Boolean);
 let ticking = false;
+
+/* Scroll-spy tracks whichever nav links belong to the current view. */
+function currentSections() {
+  const view = root.dataset.view === "recruiter" ? "recruiter" : "explore";
+  // Desktop and menu links point at the same sections; measure each once.
+  const ids = new Set(
+    navLinks.filter((link) => link.dataset.viewOnly === view).map((link) => link.getAttribute("href"))
+  );
+  return [...ids].map((id) => document.querySelector(id)).filter(Boolean);
+}
 
 /* Cache section offsets so scrolling never forces layout reads. */
 let sectionOffsets = [];
+let lastNavSection = null; // last item in nav order — wins at page bottom
 function measureSections() {
+  const sectionEls = currentSections();
   const y0 = window.scrollY;
   sectionOffsets = sectionEls.map((el) => ({ id: el.id, top: y0 + el.getBoundingClientRect().top }));
+  lastNavSection = sectionEls.length ? sectionEls[sectionEls.length - 1].id : null;
   sectionOffsets.sort((a, b) => a.top - b.top);
 }
 measureSections();
@@ -236,9 +271,9 @@ function updateScrollUI() {
   for (const s of sectionOffsets) {
     if (s.top - y <= bias) current = s.id;
   }
-  // Near the very bottom, contact should win even if its top hasn't passed the bias line
-  if (current !== "contact" && window.innerHeight + y >= document.documentElement.scrollHeight - 40) {
-    current = sectionOffsets.length ? sectionOffsets[sectionOffsets.length - 1].id : null;
+  // Near the very bottom, the last section should win even if its top hasn't passed the bias line
+  if (window.innerHeight + y >= document.documentElement.scrollHeight - 40) {
+    current = lastNavSection;
   }
   navLinks.forEach((link) => {
     link.classList.toggle("active", link.getAttribute("href") === `#${current}`);
@@ -272,6 +307,7 @@ if (pointerFX) {
     "pointermove",
     (e) => {
       mx = e.clientX; my = e.clientY;
+      wake();
       if (!visible) {
         visible = true;
         dot && (dot.style.opacity = "1");
@@ -289,7 +325,10 @@ if (pointerFX) {
   const HALF_GLOW = 280; // half of the glow element's 560px size
   let ringScale = 1, ringTarget = 1;
 
-  (function loop() {
+  // The loop eases everything toward the pointer, then goes to sleep once it
+  // has settled, so an idle mouse costs no frames. Pointer events wake it.
+  let running = false;
+  function loop() {
     gx += (mx - gx) * 0.07;
     gy += (my - gy) * 0.07;
     rx += (mx - rx) * 0.18;
@@ -298,21 +337,34 @@ if (pointerFX) {
     // Compositor-only movement: translate3d/transform never trigger layout.
     if (glow) glow.style.transform = `translate3d(${(gx - HALF_GLOW).toFixed(1)}px, ${(gy - HALF_GLOW).toFixed(1)}px, 0)`;
     if (dot) dot.style.transform = `translate3d(${mx}px, ${my}px, 0) translate(-50%, -50%)`;
-    if (ring) ring.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%) scale(${ringScale.toFixed(3)})`;
+    if (ring) ring.style.transform = `translate3d(${rx.toFixed(1)}px, ${ry.toFixed(1)}px, 0) translate(-50%, -50%) scale(${ringScale.toFixed(3)})`;
+    const settled =
+      Math.abs(mx - gx) < 0.1 && Math.abs(my - gy) < 0.1 &&
+      Math.abs(mx - rx) < 0.1 && Math.abs(my - ry) < 0.1 &&
+      Math.abs(ringTarget - ringScale) < 0.001;
+    if (settled) running = false;
+    else requestAnimationFrame(loop);
+  }
+  function wake() {
+    if (running) return;
+    running = true;
     requestAnimationFrame(loop);
-  })();
+  }
+  wake();
 
   const hoverables = "a, button, [role='tab'], .stack-items span";
   document.addEventListener("pointerover", (e) => {
     if (e.target.closest(hoverables)) {
       ringTarget = 1.65;
       ring?.classList.add("is-hover");
+      wake();
     }
   });
   document.addEventListener("pointerout", (e) => {
     if (e.target.closest(hoverables)) {
       ringTarget = 1;
       ring?.classList.remove("is-hover");
+      wake();
     }
   });
 } else {
@@ -417,14 +469,16 @@ if (typewriterEl) {
   }
 }
 
-const clock = document.querySelector("[data-clock]");
-if (clock) {
+const clocks = document.querySelectorAll("[data-clock]");
+if (clocks.length) {
+  const fmt = new Intl.DateTimeFormat("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Asia/Kolkata",
+  });
   const update = () => {
-    clock.textContent = new Intl.DateTimeFormat("en-IN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "Asia/Kolkata",
-    }).format(new Date());
+    const now = fmt.format(new Date());
+    clocks.forEach((el) => { el.textContent = now; });
   };
   update();
   window.setInterval(update, 15000);
@@ -526,7 +580,7 @@ layerTabs.forEach((tab, tabIndex) => {
 
 /* ---------- Copy email + toast ---------- */
 const email = "devanshuverma372@gmail.com";
-const copyButton = document.querySelector("[data-copy-email]");
+const copyButtons = document.querySelectorAll("[data-copy-email]");
 const toast = document.querySelector("[data-toast]");
 let toastTimer;
 
@@ -551,13 +605,112 @@ async function copyText(text) {
   document.execCommand("copy");
   textarea.remove();
 }
-copyButton?.addEventListener("click", async () => {
-  try {
-    await copyText(email);
-    showToast("Email copied to clipboard");
-    copyButton.textContent = "Copied ✓";
-    window.setTimeout(() => (copyButton.textContent = "Copy email"), 2200);
-  } catch {
-    showToast("Copy failed — please try again");
+copyButtons.forEach((copyButton) => {
+  copyButton.addEventListener("click", async () => {
+    try {
+      await copyText(email);
+      showToast("Email copied to clipboard");
+      copyButton.textContent = "Copied ✓";
+      window.setTimeout(() => (copyButton.textContent = "Copy email"), 2200);
+    } catch {
+      showToast("Copy failed — please try again");
+    }
+  });
+});
+
+/* ---------- Explore / Recruiter view switch ---------- */
+/* The view lives in the URL (?view=recruiter) so a recruiter-ready link can be
+   shared directly. The inline <head> script applies it before first paint. */
+const viewSwitch = document.querySelector("[data-view-switch]");
+const skipLink = document.querySelector(".skip-link");
+const viewTitles = {
+  explore: document.title,
+  recruiter: "Devanshu Verma — Recruiter view",
+};
+const viewMains = {
+  explore: document.getElementById("main-content"),
+  recruiter: document.getElementById("recruiter-view"),
+};
+let currentView = root.dataset.view === "recruiter" ? "recruiter" : "explore";
+let viewTimer = null;
+
+function syncSwitch(view) {
+  if (!viewSwitch) return;
+  viewSwitch.dataset.active = view;
+  viewSwitch.querySelectorAll("[data-view-option]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.viewOption === view));
+  });
+}
+
+function applyView(view) {
+  if (view === "recruiter") root.dataset.view = "recruiter";
+  else delete root.dataset.view;
+  document.title = viewTitles[view];
+  skipLink?.setAttribute("href", `#${viewMains[view]?.id}`);
+  setMenu(false);
+  window.scrollTo({ top: 0, behavior: "instant" });
+  measureSections();
+  updateScrollUI();
+}
+
+function setView(view, { push = true, focusContent = false } = {}) {
+  if (view === currentView) return;
+  currentView = view;
+  syncSwitch(view); // the pill starts sliding immediately
+
+  if (push) {
+    const url = new URL(window.location.href);
+    if (view === "recruiter") url.searchParams.set("view", "recruiter");
+    else url.searchParams.delete("view");
+    url.hash = "";
+    history.pushState(null, "", url);
   }
+
+  const finish = () => {
+    applyView(view);
+    root.classList.remove("view-leaving");
+    if (!reducedMotion) {
+      root.classList.add("view-entering");
+      window.setTimeout(() => root.classList.remove("view-entering"), 600);
+    }
+    if (focusContent) {
+      const target = viewMains[view];
+      if (target && !target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+      target?.focus({ preventScroll: true });
+    }
+  };
+
+  window.clearTimeout(viewTimer);
+  if (reducedMotion) {
+    finish();
+    return;
+  }
+  root.classList.remove("view-entering");
+  root.classList.add("view-leaving");
+  viewTimer = window.setTimeout(finish, 190);
+}
+
+syncSwitch(currentView);
+// Initial load: no scroll reset, so deep links like ?view=recruiter#r-skills still land.
+document.title = viewTitles[currentView];
+skipLink?.setAttribute("href", `#${viewMains[currentView]?.id}`);
+
+document.querySelectorAll("[data-view-option]").forEach((button) => {
+  button.addEventListener("click", () => {
+    // Buttons outside the header vanish with the old view, so move focus to the new content.
+    setView(button.dataset.viewOption, { focusContent: !button.closest("[data-view-switch]") });
+  });
+});
+
+window.addEventListener("popstate", () => {
+  const view = new URLSearchParams(window.location.search).get("view") === "recruiter" ? "recruiter" : "explore";
+  setView(view, { push: false });
+});
+
+/* "#top" lives in the explore hero; in recruiter view just go to the top. */
+document.addEventListener("click", (event) => {
+  const link = event.target.closest('a[href="#top"]');
+  if (!link || currentView !== "recruiter") return;
+  event.preventDefault();
+  window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
 });

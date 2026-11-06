@@ -32,6 +32,13 @@
             document.documentElement.dataset.theme = "dark";
           }
         } catch (e) {}
+        // Recruiter view is URL-driven (?view=recruiter) so it can be shared as a link.
+        // Set it before first paint so the explore page never flashes.
+        try {
+          if (new URLSearchParams(window.location.search).get("view") === "recruiter") {
+            document.documentElement.dataset.view = "recruiter";
+          }
+        } catch (e) {}
       })();
     </script>
     <link rel="stylesheet" href="styles.css" />
@@ -43,7 +50,7 @@
       <div class="boot-panel">
         <div class="boot-top">
           <span class="boot-dots"><i></i><i></i><i></i></span>
-          <span class="boot-path">~/portfolio — initializing</span>
+          <span>~/portfolio — initializing</span>
         </div>
         <ol class="boot-lines" data-boot-lines>
           <li>loading modules</li>
@@ -51,7 +58,7 @@
           <li>warming vector index</li>
           <li>connecting agent runtime</li>
         </ol>
-        <div class="boot-bar" aria-hidden="true"><i data-boot-bar></i></div>
+        <div class="boot-bar" aria-hidden="true"><i></i></div>
         <p class="boot-status" data-boot-status>booting…</p>
       </div>
     </div>
@@ -70,17 +77,26 @@
     <header class="site-header" data-header>
       <div class="header-inner">
         <a class="brand" href="#top" aria-label="Devanshu Verma — home">
-          <span class="brand-name">Devanshu Verma</span>
+          <span class="brand-name">Devanshu<span class="brand-last"> Verma</span></span>
         </a>
         <nav class="desktop-nav" aria-label="Primary">
-          <a href="#about" data-nav-link>About</a>
-          <a href="#stack" data-nav-link>Stack</a>
-          <a href="#work" data-nav-link>Work</a>
-          <a href="#journey" data-nav-link>Journey</a>
-          <a href="#contact" data-nav-link>Contact</a>
+          <a href="#about" data-nav-link data-view-only="explore">About</a>
+          <a href="#stack" data-nav-link data-view-only="explore">Stack</a>
+          <a href="#work" data-nav-link data-view-only="explore">Work</a>
+          <a href="#journey" data-nav-link data-view-only="explore">Journey</a>
+          <a href="#contact" data-nav-link data-view-only="explore">Contact</a>
+          <a href="#r-work" data-nav-link data-view-only="recruiter">Project</a>
+          <a href="#r-experience" data-nav-link data-view-only="recruiter">Experience</a>
+          <a href="#r-skills" data-nav-link data-view-only="recruiter">Skills</a>
+          <a href="#r-contact" data-nav-link data-view-only="recruiter">Contact</a>
         </nav>
         <div class="header-actions">
           <span class="header-status" aria-hidden="true"><i></i>Open to work</span>
+          <div class="view-switch" role="group" aria-label="Portfolio view" data-view-switch>
+            <span class="view-switch-pill" aria-hidden="true"></span>
+            <button type="button" data-view-option="explore" aria-pressed="true">Explore</button>
+            <button type="button" data-view-option="recruiter" aria-pressed="false">Recruiter</button>
+          </div>
           <a
             class="header-resume"
             href="https://drive.google.com/file/d/13dw4Y_W2PxoA2IUw-eVa0w8PFTUMsYmg/view?usp=sharing"
@@ -99,24 +115,43 @@
           </button>
           <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-panel" data-menu-toggle>
             <span aria-hidden="true"><i></i><i></i></span>
-            Menu
+            <span class="menu-label">Menu</span>
           </button>
         </div>
       </div>
-      <nav class="mobile-panel" id="mobile-panel" aria-label="Mobile" data-mobile-panel hidden>
-        <a href="#about">About <span>01</span></a>
-        <a href="#stack">Stack <span>02</span></a>
-        <a href="#work">Work <span>03</span></a>
-        <a href="#journey">Journey <span>04</span></a>
-        <a href="#contact">Contact <span>05</span></a>
-        <a
-          class="mobile-resume"
-          href="https://drive.google.com/file/d/13dw4Y_W2PxoA2IUw-eVa0w8PFTUMsYmg/view?usp=sharing"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Résumé <span aria-hidden="true">↗</span>
-        </a>
+      <!-- Full-screen menu (below 960px). Hidden with visibility, not [hidden],
+           so it can animate; that also keeps it out of the tab order when closed. -->
+      <nav class="mobile-panel" id="mobile-panel" aria-label="Menu" data-mobile-panel>
+        <div class="mobile-panel-inner">
+          <p class="mobile-kicker">Navigate</p>
+          <ol class="mobile-links">
+            <li data-view-only="explore"><a href="#about" data-nav-link data-view-only="explore"><span>01</span>About<i aria-hidden="true">→</i></a></li>
+            <li data-view-only="explore"><a href="#stack" data-nav-link data-view-only="explore"><span>02</span>Stack<i aria-hidden="true">→</i></a></li>
+            <li data-view-only="explore"><a href="#work" data-nav-link data-view-only="explore"><span>03</span>Work<i aria-hidden="true">→</i></a></li>
+            <li data-view-only="explore"><a href="#journey" data-nav-link data-view-only="explore"><span>04</span>Journey<i aria-hidden="true">→</i></a></li>
+            <li data-view-only="explore"><a href="#contact" data-nav-link data-view-only="explore"><span>05</span>Contact<i aria-hidden="true">→</i></a></li>
+            <li data-view-only="recruiter"><a href="#r-work" data-nav-link data-view-only="recruiter"><span>01</span>Project<i aria-hidden="true">→</i></a></li>
+            <li data-view-only="recruiter"><a href="#r-experience" data-nav-link data-view-only="recruiter"><span>02</span>Experience<i aria-hidden="true">→</i></a></li>
+            <li data-view-only="recruiter"><a href="#r-skills" data-nav-link data-view-only="recruiter"><span>03</span>Skills<i aria-hidden="true">→</i></a></li>
+            <li data-view-only="recruiter"><a href="#r-contact" data-nav-link data-view-only="recruiter"><span>04</span>Contact<i aria-hidden="true">→</i></a></li>
+          </ol>
+          <div class="mobile-foot">
+            <a
+              class="mobile-resume"
+              href="https://drive.google.com/file/d/13dw4Y_W2PxoA2IUw-eVa0w8PFTUMsYmg/view?usp=sharing"
+              target="_blank"
+              rel="noreferrer"
+            >
+              View résumé <span aria-hidden="true">↗</span>
+            </a>
+            <div class="mobile-social">
+              <a href="https://github.com/DeV-433" target="_blank" rel="noreferrer">GitHub ↗</a>
+              <a href="https://www.linkedin.com/in/devanshu-verma-283b71324" target="_blank" rel="noreferrer">LinkedIn ↗</a>
+              <a href="mailto:devanshuverma372@gmail.com">Email ↗</a>
+            </div>
+            <p class="mobile-status"><i aria-hidden="true"></i>Open to internships · Raipur, IST</p>
+          </div>
+        </div>
       </nav>
     </header>
 
@@ -158,9 +193,9 @@
                 <span class="terminal-live"><i aria-hidden="true"></i>LIVE</span>
               </div>
               <div class="terminal-body">
-                <div class="term-io">
+                <div>
                   <p class="term-line"><span class="term-prompt" aria-hidden="true">$</span> index github.com/any/repository</p>
-                  <ol class="term-steps" data-pipeline>
+                  <ol class="term-steps">
                     <li><b>01</b><span>Parse — tree-sitter AST, 36 languages</span><i aria-hidden="true"></i></li>
                     <li><b>02</b><span>Embed — Jina AI semantic vectors</span><i aria-hidden="true"></i></li>
                     <li><b>03</b><span>Retrieve — grounded context, not guesses</span><i aria-hidden="true"></i></li>
@@ -174,7 +209,7 @@
                     <span data-typewriter aria-hidden="true">Answering with retrieved code…</span>
                   </p>
                   <div class="term-meta">
-                    <span class="term-chip"><i aria-hidden="true"></i><b data-grounded>tree-sitter · AST</b></span>
+                    <span class="term-chip"><i aria-hidden="true"></i><b>tree-sitter · AST</b></span>
                     <span class="term-chip"><i aria-hidden="true"></i><b>RAG · Bedrock</b></span>
                     <span class="term-chip"><i aria-hidden="true"></i><b>SSE stream</b></span>
                   </div>
@@ -234,7 +269,7 @@
       </section>
 
       <!-- ============ STACK ============ -->
-      <section class="section stack" id="stack" aria-labelledby="stack-title">
+      <section class="section" id="stack" aria-labelledby="stack-title">
         <div class="section-head" data-reveal>
           <span class="section-index">02</span>
           <p class="section-label">Stack</p>
@@ -383,7 +418,7 @@
       </section>
 
       <!-- ============ JOURNEY ============ -->
-      <section class="section journey" id="journey" aria-labelledby="journey-title">
+      <section class="section" id="journey" aria-labelledby="journey-title">
         <div class="section-head" data-reveal>
           <span class="section-index">04</span>
           <p class="section-label">Journey</p>
@@ -438,7 +473,7 @@
       </section>
 
       <!-- ============ CONTACT ============ -->
-      <section class="section contact" id="contact" aria-labelledby="contact-title">
+      <section class="section" id="contact" aria-labelledby="contact-title">
         <div class="contact-card" data-reveal data-tilt>
           <span class="contact-eyebrow">Contact · Raipur, Chhattisgarh · IST</span>
           <h2 id="contact-title">Let's build <em class="accent-serif">something sharp.</em></h2>
@@ -462,6 +497,110 @@
           <span class="card-glow" aria-hidden="true"></span>
         </div>
       </section>
+    </main>
+
+    <!-- ============ RECRUITER VIEW ============
+         A condensed, résumé-style version of the same content in a fixed
+         black / gold / white palette. Shown when <html data-view="recruiter">. -->
+    <main class="recruiter" id="recruiter-view" tabindex="-1" aria-label="Recruiter view">
+      <div class="r-intro">
+        <p class="r-status"><i aria-hidden="true"></i>Open to internships</p>
+        <h1>Devanshu Verma</h1>
+        <p class="r-role">AI Engineer · Agentic systems &amp; RAG</p>
+        <p class="r-summary">
+          Pre-final year B.Tech student in Data Science &amp; AI at IIIT Naya Raipur. I build
+          agentic, RAG-powered products end-to-end — most recently <strong>Codrix.ai</strong>,
+          a code intelligence platform built for Amazon's AI for Bharat Hackathon.
+        </p>
+        <div class="r-actions">
+          <a class="r-btn r-btn-gold" href="https://drive.google.com/file/d/13dw4Y_W2PxoA2IUw-eVa0w8PFTUMsYmg/view?usp=sharing" target="_blank" rel="noreferrer">View résumé <span aria-hidden="true">↗</span></a>
+          <a class="r-btn" href="https://www.linkedin.com/in/devanshu-verma-283b71324" target="_blank" rel="noreferrer">LinkedIn <span aria-hidden="true">↗</span></a>
+          <a class="r-btn" href="https://github.com/DeV-433" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+          <button class="r-btn" type="button" data-copy-email>Copy email</button>
+        </div>
+        <p class="r-meta">Raipur, India · IST <span data-clock>–</span> · devanshuverma372@gmail.com</p>
+      </div>
+
+      <dl class="r-glance" aria-label="At a glance">
+        <div><dt>Degree</dt><dd>B.Tech, Data Science &amp; AI</dd></div>
+        <div><dt>CGPA</dt><dd>8.67 / 10</dd></div>
+        <div><dt>Graduating</dt><dd>May 2028</dd></div>
+        <div><dt>Seeking</dt><dd>AI / ML &amp; backend internships</dd></div>
+      </dl>
+
+      <section class="r-row" id="r-work" aria-labelledby="r-work-title">
+        <h2 id="r-work-title">Project</h2>
+        <div class="r-body">
+          <div class="r-item-head">
+            <h3>Codrix.ai</h3>
+            <span class="r-item-links">
+              <a href="https://teamtajmahal.vercel.app/" target="_blank" rel="noreferrer">Live demo ↗</a>
+              <a href="https://github.com/DeV-433" target="_blank" rel="noreferrer">GitHub ↗</a>
+            </span>
+          </div>
+          <p class="r-sub">Code intelligence platform · Amazon AI for Bharat Hackathon</p>
+          <p>Indexes any public GitHub repository and answers questions about it conversationally.</p>
+          <ul class="r-bullets">
+            <li>Built <strong>contextplus</strong>, a code intelligence engine using tree-sitter AST parsing across <strong>36 languages</strong> with Jina AI embeddings for semantic code search.</li>
+            <li>Designed a <strong>RAG-powered agentic pipeline</strong> on Amazon Bedrock (Claude Sonnet 4) with a multi-round tool-use loop (up to 6 rounds).</li>
+            <li>Engineered a <strong>Go backend on AWS EC2</strong> streaming progress over Server-Sent Events, with exponential backoff and automatic Groq LLaMA fallback.</li>
+            <li>Shipped a <strong>Prompt-to-Diagram engine</strong> generating Architecture, UML Sequence, and ER diagrams from live code.</li>
+          </ul>
+          <p class="r-stack">Go · React 18 · Node.js · AWS Bedrock · tree-sitter · RAG · Docker</p>
+        </div>
+      </section>
+
+      <section class="r-row" id="r-experience" aria-labelledby="r-experience-title">
+        <h2 id="r-experience-title">Experience</h2>
+        <div class="r-body">
+          <div class="r-item-head">
+            <h3>Amazon AI for Bharat Hackathon</h3>
+            <span class="r-date">Prototype phase</span>
+          </div>
+          <p class="r-sub">Amazon Web Services · Nationwide</p>
+          <p>Advanced to the prototype submission phase; built and presented Codrix.ai on AWS Bedrock, EC2, and the Bedrock Converse API — a production-grade RAG pipeline with real-time streaming.</p>
+        </div>
+      </section>
+
+      <section class="r-row" id="r-education" aria-labelledby="r-education-title">
+        <h2 id="r-education-title">Education</h2>
+        <div class="r-body">
+          <div class="r-item-head">
+            <h3>IIIT Naya Raipur</h3>
+            <span class="r-date">2023 — May 2028</span>
+          </div>
+          <p class="r-sub">B.Tech, Data Science &amp; Artificial Intelligence · CGPA 8.67/10</p>
+          <p>Coursework: Data Structures &amp; Algorithms, Machine Learning, Foundations of AI, Reinforcement Learning, Statistical Data Analysis, Data Mining, DBMS, Operating Systems, OOP.</p>
+        </div>
+      </section>
+
+      <section class="r-row" id="r-skills" aria-labelledby="r-skills-title">
+        <h2 id="r-skills-title">Skills</h2>
+        <dl class="r-body r-skills">
+          <div><dt>AI / ML</dt><dd>RAG, LLMs, Agentic workflows, PyTorch, TensorFlow</dd></div>
+          <div><dt>Languages</dt><dd>Python, C++, Java, SQL</dd></div>
+          <div><dt>Frameworks</dt><dd>FastAPI, React, Node.js, LangChain, LangGraph, Pydantic AI</dd></div>
+          <div><dt>Databases</dt><dd>MySQL, Neo4j, ChromaDB, Pinecone, FAISS</dd></div>
+          <div><dt>Tools</dt><dd>Git, Docker, VS Code, Arduino IDE</dd></div>
+        </dl>
+      </section>
+
+      <section class="r-row" id="r-contact" aria-labelledby="r-contact-title">
+        <h2 id="r-contact-title">Contact</h2>
+        <div class="r-body">
+          <p>Have an internship, research problem, or team that needs an AI builder? I reply fast.</p>
+          <a class="r-email" href="mailto:devanshuverma372@gmail.com">devanshuverma372@gmail.com <span aria-hidden="true">↗</span></a>
+          <p class="r-elsewhere">
+            <a href="https://leetcode.com/u/DevanshuV79" target="_blank" rel="noreferrer">LeetCode</a> ·
+            <a href="https://x.com/devanshu71" target="_blank" rel="noreferrer">X</a>
+          </p>
+        </div>
+      </section>
+
+      <p class="r-explore-note">
+        Want the full story and how it all works?
+        <button type="button" data-view-option="explore">Switch to Explore view →</button>
+      </p>
     </main>
 
     <footer class="site-footer">
