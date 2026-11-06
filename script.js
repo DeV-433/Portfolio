@@ -298,6 +298,7 @@ const ring = document.querySelector("[data-cursor-ring]");
 const pointerFX = finePointer && !reducedMotion;
 
 if (pointerFX) {
+  root.classList.add("custom-cursor");
   let mx = window.innerWidth / 2, my = window.innerHeight * 0.3;
   let gx = mx, gy = my;
   let rx = mx, ry = my;

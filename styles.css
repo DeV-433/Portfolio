@@ -324,8 +324,13 @@ html[data-theme="dark"] .boot { background: #08090b; }
 
 /* ---------- Custom cursor ---------- */
 
+/* With the custom cursor active, hide the system one everywhere (including
+   links/buttons, which set their own cursor). Set by script.js only when the
+   dot + ring actually run: fine pointer and no reduced-motion preference. */
+html.custom-cursor, html.custom-cursor * { cursor: none !important; }
+
 .cursor-dot, .cursor-ring {
-  position: fixed; top: 0; left: 0; z-index: 1700;
+  position: fixed; top: 0; left: 0; z-index: 2300; /* above the boot screen */
   pointer-events: none; border-radius: 50%;
   opacity: 0;
 }
@@ -1204,9 +1209,12 @@ html.view-entering body { transition: background-color 450ms ease, color 450ms e
 }
 .r-status i { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 3.5px var(--gold-soft); }
 .r-intro h1 {
-  margin-top: 18px;
-  font-size: clamp(42px, 6vw, 72px); font-weight: 600;
-  letter-spacing: -0.045em; line-height: 1;
+  margin-top: 14px;
+  /* Script faces draw small for their size, so this runs larger than the
+     sans headings to stay readable. */
+  font-family: "Pinyon Script", var(--serif);
+  font-size: clamp(54px, 7.6vw, 96px); font-weight: 400;
+  letter-spacing: 0; line-height: 1.15;
 }
 .r-role {
   margin-top: 12px;
