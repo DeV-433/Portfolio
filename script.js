@@ -229,6 +229,7 @@ const header = document.querySelector("[data-header]");
 const progress = document.querySelector("[data-progress]");
 const navLinks = [...document.querySelectorAll("[data-nav-link]")];
 let ticking = false;
+let spySection = null; // id of the section the nav currently highlights (null = top)
 
 /* Scroll-spy tracks whichever nav links belong to the current view. */
 function currentSections() {
@@ -278,6 +279,10 @@ function updateScrollUI() {
   navLinks.forEach((link) => {
     link.classList.toggle("active", link.getAttribute("href") === `#${current}`);
   });
+  if (current !== spySection) {
+    spySection = current;
+    window.dispatchEvent(new CustomEvent("section:change", { detail: current }));
+  }
   ticking = false;
 }
 window.addEventListener(
@@ -624,10 +629,6 @@ copyButtons.forEach((copyButton) => {
    shared directly. The inline <head> script applies it before first paint. */
 const viewSwitch = document.querySelector("[data-view-switch]");
 const skipLink = document.querySelector(".skip-link");
-const viewTitles = {
-  explore: document.title,
-  recruiter: "Devanshu Verma — Recruiter view",
-};
 const viewMains = {
   explore: document.getElementById("main-content"),
   recruiter: document.getElementById("recruiter-view"),
@@ -646,7 +647,6 @@ function syncSwitch(view) {
 function applyView(view) {
   if (view === "recruiter") root.dataset.view = "recruiter";
   else delete root.dataset.view;
-  document.title = viewTitles[view];
   skipLink?.setAttribute("href", `#${viewMains[view]?.id}`);
   setMenu(false);
   window.scrollTo({ top: 0, behavior: "instant" });
@@ -693,7 +693,6 @@ function setView(view, { push = true, focusContent = false } = {}) {
 
 syncSwitch(currentView);
 // Initial load: no scroll reset, so deep links like ?view=recruiter#r-skills still land.
-document.title = viewTitles[currentView];
 skipLink?.setAttribute("href", `#${viewMains[currentView]?.id}`);
 
 document.querySelectorAll("[data-view-option]").forEach((button) => {
@@ -715,3 +714,137 @@ document.addEventListener("click", (event) => {
   event.preventDefault();
   window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
 });
+
+/* ---------- Tab title + favicon ---------- */
+/* The browser tab follows the page. The title types in the section you're
+   reading (and rotates taglines at the top), changes while the tab is in the
+   background, and a canvas favicon matches the site theme with a pulsing
+   "open to work" dot. The static <title> and favicon.svg remain in the HTML
+   for crawlers and no-JS visitors. */
+(() => {
+  const NAME = "Devanshu Verma";
+  const TAGLINES = ["AI Engineer", "Building Codrix.ai", "Open to work"];
+  const AWAY = ["👋 Still there?", "✦ Open to internships"];
+  const CARET = "▍";
+  const labels = {};
+  document.querySelectorAll(".desktop-nav [data-nav-link]").forEach((a) => {
+    labels[a.getAttribute("href").slice(1)] = a.textContent.trim();
+  });
+
+  let section = spySection;
+  let away = document.hidden;
+  let shown = document.title; // title text without the caret
+  let tagline = 0;
+  let typeTimer = 0;
+  let awayTimer = 0;
+
+  function target() {
+    if (section && labels[section]) return `${NAME} · ${labels[section]}`;
+    if (root.dataset.view === "recruiter") return `${NAME} · Recruiter view`;
+    return `${NAME} · ${TAGLINES[tagline]}`;
+  }
+
+  // Erase back to the part both titles share, then type the rest.
+  function typeTo(text) {
+    window.clearTimeout(typeTimer);
+    if (reducedMotion) {
+      document.title = shown = text;
+      return;
+    }
+    const step = () => {
+      if (!text.startsWith(shown)) {
+        shown = shown.slice(0, -1);
+        document.title = shown + CARET;
+        typeTimer = window.setTimeout(step, 24);
+      } else if (shown.length < text.length) {
+        shown = text.slice(0, shown.length + 1);
+        document.title = shown + CARET;
+        typeTimer = window.setTimeout(step, 55);
+      } else {
+        document.title = shown;
+      }
+    };
+    step();
+  }
+  const refresh = () => { if (!away) typeTo(target()); };
+
+  // Rotate taglines while at the top of the explore view.
+  window.setInterval(() => {
+    if (reducedMotion || away || section || root.dataset.view === "recruiter") return;
+    tagline = (tagline + 1) % TAGLINES.length;
+    refresh();
+  }, 4000);
+
+  window.addEventListener("section:change", (e) => {
+    section = e.detail;
+    refresh();
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    away = document.hidden;
+    window.clearTimeout(typeTimer);
+    window.clearInterval(awayTimer);
+    if (away) {
+      let i = 0;
+      document.title = AWAY[0];
+      if (!reducedMotion) awayTimer = window.setInterval(() => { document.title = AWAY[++i % AWAY.length]; }, 2000);
+    } else {
+      document.title = shown = "Welcome back ✦";
+      typeTimer = window.setTimeout(refresh, 1400);
+    }
+    drawIcon();
+  });
+
+  // ---- favicon ----
+  const icon = document.querySelector('link[rel="icon"]');
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = 64;
+  const ctx = canvas.getContext("2d");
+  let pulse = false;
+
+  function palette() {
+    if (root.dataset.view === "recruiter") return { bg: "#000000", ink: "#f5f4ef", edge: "rgba(212,176,98,0.6)", dot: "#d4b062" };
+    if (root.dataset.theme === "dark") return { bg: "#12141a", ink: "#f0f1f3", edge: "rgba(255,255,255,0.18)", dot: "#4ade80" };
+    return { bg: "#f7f7f5", ink: "#16171a", edge: "rgba(22,23,26,0.2)", dot: "#16a34a" };
+  }
+
+  function drawIcon() {
+    if (!icon || !ctx || !ctx.roundRect) return; // old browsers keep favicon.svg
+    const c = palette();
+    ctx.clearRect(0, 0, 64, 64);
+    ctx.fillStyle = c.bg;
+    ctx.beginPath(); ctx.roundRect(0, 0, 64, 64, 14); ctx.fill();
+    ctx.strokeStyle = c.edge; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(3, 3, 58, 58, 12); ctx.stroke();
+    ctx.fillStyle = c.ink;
+    ctx.font = "600 27px Inter, system-ui, sans-serif";
+    if ("letterSpacing" in ctx) ctx.letterSpacing = "-1px";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("DV", 29, 30);
+    // status dot: a soft pulse while you're here, a hard blink while you're away
+    const on = away ? pulse : true;
+    const r = away ? 8 : pulse ? 8 : 6.5;
+    ctx.fillStyle = c.bg;
+    ctx.beginPath(); ctx.arc(51, 51, 11, 0, Math.PI * 2); ctx.fill();
+    if (on) {
+      ctx.globalAlpha = 0.28;
+      ctx.fillStyle = c.dot;
+      ctx.beginPath(); ctx.arc(51, 51, r + 3, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.beginPath(); ctx.arc(51, 51, r, 0, Math.PI * 2); ctx.fill();
+    }
+    icon.type = "image/png";
+    icon.href = canvas.toDataURL("image/png");
+  }
+
+  if (!reducedMotion) {
+    window.setInterval(() => { pulse = !pulse; drawIcon(); }, 900);
+  }
+  // Redraw when the theme or view changes, and once fonts are ready.
+  new MutationObserver(() => { drawIcon(); refresh(); })
+    .observe(root, { attributes: true, attributeFilter: ["data-theme", "data-view"] });
+  document.fonts?.ready.then(drawIcon);
+  drawIcon();
+  refresh();
+})();
+
