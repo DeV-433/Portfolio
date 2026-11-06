@@ -722,8 +722,7 @@ document.addEventListener("click", (event) => {
    "open to work" dot. The static <title> and favicon.svg remain in the HTML
    for crawlers and no-JS visitors. */
 (() => {
-  const NAME = "Devanshu Verma";
-  const TAGLINES = ["AI Engineer", "Building Codrix.ai", "Open to work"];
+  const TAGLINES = ["AI Engineer", "Open to work"];
   const AWAY = ["👋 Still there?", "✦ Open to internships"];
   const CARET = "▍";
   const labels = {};
@@ -739,9 +738,11 @@ document.addEventListener("click", (event) => {
   let awayTimer = 0;
 
   function target() {
-    if (section && labels[section]) return `${NAME} · ${labels[section]}`;
-    if (root.dataset.view === "recruiter") return `${NAME} · Recruiter view`;
-    return `${NAME} · ${TAGLINES[tagline]}`;
+    // No name prefix: tabs only show ~20 characters, so the moving part goes first.
+    // (The favicon carries the "DV"; the static <title> keeps the full name.)
+    if (section && labels[section]) return labels[section];
+    if (root.dataset.view === "recruiter") return "Recruiter view";
+    return TAGLINES[tagline];
   }
 
   // Erase back to the part both titles share, then type the rest.
