@@ -438,6 +438,35 @@ html[data-theme="light"] .theme-icon-sun { opacity: 0; transform: rotate(90deg) 
 html[data-theme="dark"] .theme-icon-sun { opacity: 1; transform: rotate(0deg) scale(1); }
 html[data-theme="dark"] .theme-icon-moon { opacity: 0; transform: rotate(-90deg) scale(0.4); }
 
+/* Glass light toggle (glass-toggle.js): a WebGL track at the original's
+   432 × 224 proportions, scaled to the header's button height. The canvas
+   overhangs the button so the shadow and light spill can reach the header. */
+.theme-toggle.is-glass {
+  width: calc(var(--toggle-h, 38px) * 432 / 224);
+  height: var(--toggle-h, 38px);
+  border: 0; padding: 0;
+  border-radius: calc(var(--toggle-h, 38px) * 72 / 224);
+  background: none;
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none; -webkit-user-select: none;
+}
+.theme-toggle.is-glass:hover { background: none; }
+.theme-toggle.is-glass .theme-icon { display: none; }
+.theme-toggle.is-glass:focus-visible { outline: 2px solid var(--highlight); outline-offset: 3px; }
+.glass-toggle-canvas {
+  position: absolute; display: block;
+  pointer-events: none;
+  /* Captured on its own during the theme View Transition so it keeps
+     animating live above the circular reveal. */
+  view-transition-name: glass-toggle;
+}
+::view-transition-group(glass-toggle) { animation: none; z-index: 10; }
+::view-transition-old(glass-toggle) { display: none; }
+::view-transition-new(glass-toggle) { animation: none; }
+@media (max-width: 640px) { .theme-toggle.is-glass { --toggle-h: 30px; } }
+@media (max-width: 420px) { .theme-toggle.is-glass { --toggle-h: 26px; } }
+
 /* ---------- Explore / Recruiter view switch ---------- */
 
 .view-switch {

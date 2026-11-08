@@ -61,9 +61,10 @@ applyTheme(root.dataset.theme === "dark" ? "dark" : "light");
    light → dark : the exact reverse — the old (light) theme contracts
                   back into the toggle, revealing the dark theme behind it. */
 let themeLock = false;
+let queuedTheme = null; // a switch requested mid-transition, applied when it ends
 
 function setTheme(next, origin) {
-  if (themeLock) return;
+  if (themeLock) { queuedTheme = next; return; }
   try { localStorage.setItem("theme", next); } catch {}
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const animate = !reduce && origin && document.startViewTransition;
@@ -109,22 +110,136 @@ function setTheme(next, origin) {
     root.classList.remove("theme-transitioning");
     root.classList.remove("is-light-to-dark");
     themeLock = false;
+    const queued = queuedTheme;
+    queuedTheme = null;
+    if (queued && queued !== root.dataset.theme) setTheme(queued, toggleOrigin());
   };
   transition.finished.then(cleanup, cleanup);
 }
 
-themeToggle?.addEventListener("click", () => {
-  const next = root.dataset.theme === "dark" ? "light" : "dark";
+function toggleOrigin() {
+  if (!themeToggle) return null;
   const rect = themeToggle.getBoundingClientRect();
-  setTheme(next, { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
-});
+  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+}
+
+/* ---------- Glass toggle: scrubbed theme wipe ----------
+   The glass toggle (glass-toggle.js) gets its own page transition: the new
+   theme wipes across the page in the direction the knob travels, and the
+   wipe is driven frame by frame by the knob's position, so dragging the
+   knob drags the page's theme with it (and dragging back undoes it).
+   A View Transition is opened as soon as the knob leaves its side, its
+   reveal animation is paused, and its currentTime follows the knob. When the
+   knob settles, the transition either completes or rolls back.
+   (The circular reveal above stays for the fallback icon button.) */
+const SCRUB_MS = 1000;
+const scrub = { vt: null, anim: null, from: null, to: null, f: 0, end: null };
+
+function canScrub() {
+  return !!document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function wipeKeyframes(to) {
+  // A 300%-wide mask with a soft edge; sliding it moves the edge from just
+  // off one side of the viewport to just off the other.
+  // dark → light: knob moves right, so light sweeps in from the left.
+  const dir = to === "light" ? "to right" : "to left";
+  const image = `linear-gradient(${dir}, #000 0%, #000 46%, transparent 54%, transparent 100%)`;
+  const [a, b] = to === "light" ? ["85% 0", "15% 0"] : ["15% 0", "85% 0"];
+  return [
+    { maskImage: image, webkitMaskImage: image, maskSize: "300% 100%", webkitMaskSize: "300% 100%",
+      maskRepeat: "no-repeat", webkitMaskRepeat: "no-repeat", maskPosition: a, webkitMaskPosition: a },
+    { maskImage: image, webkitMaskImage: image, maskSize: "300% 100%", webkitMaskSize: "300% 100%",
+      maskRepeat: "no-repeat", webkitMaskRepeat: "no-repeat", maskPosition: b, webkitMaskPosition: b },
+  ];
+}
+
+function startScrub(to) {
+  scrub.from = root.dataset.theme === "dark" ? "dark" : "light";
+  scrub.to = to;
+  scrub.f = 0;
+  scrub.end = null;
+  themeLock = true;
+  root.classList.add("theme-transitioning");
+  const vt = document.startViewTransition(() => applyTheme(to));
+  scrub.vt = vt;
+  vt.ready.then(() => {
+    if (scrub.vt !== vt) return;
+    scrub.anim = root.animate(wipeKeyframes(to), {
+      duration: SCRUB_MS,
+      easing: "linear",
+      fill: "both",
+      pseudoElement: "::view-transition-new(root)",
+    });
+    scrub.anim.pause();
+    scrub.anim.currentTime = scrub.f * SCRUB_MS;
+    if (scrub.end) endScrub(scrub.end);
+  }, () => {});
+  const cleanup = () => {
+    if (scrub.vt !== vt) return;
+    scrub.vt = null;
+    scrub.anim = null;
+    root.classList.remove("theme-transitioning");
+    themeLock = false;
+  };
+  vt.finished.then(cleanup, cleanup);
+}
+
+function endScrub(final) {
+  scrub.end = final;
+  if (!scrub.anim) return; // transition not ready yet; ready() finishes it
+  if (final !== scrub.to) {
+    // Roll back: the "new" snapshot is live, so once the old theme is
+    // re-applied, completing the reveal shows the old theme. No flash.
+    applyTheme(final);
+  }
+  try { localStorage.setItem("theme", final); } catch {}
+  scrub.anim.finish();
+}
+
+function onGlassFrame({ theme, target, dragging, settled }) {
+  if (!scrub.vt) {
+    if (!canScrub() || themeLock) return;
+    const page = root.dataset.theme === "light" ? 1 : 0;
+    // Only follow user interaction, not a programmatic set() to the page's theme.
+    if (!dragging && target === page) return;
+    if (Math.abs(theme - page) < 0.002) return;
+    startScrub(page ? "dark" : "light");
+  }
+  if (scrub.end) return; // ending; a new wipe can start once this one is torn down
+  scrub.f = scrub.to === "light" ? theme : 1 - theme;
+  if (scrub.anim) scrub.anim.currentTime = scrub.f * SCRUB_MS;
+  if (settled) endScrub(target === 1 ? "light" : "dark");
+}
+
+/* Glass light toggle (glass-toggle.js, WebGL2). It owns its own click/drag
+   input; without WebGL2 the plain icon button below is the fallback. */
+const glassToggle =
+  themeToggle && window.createGlassToggle
+    ? window.createGlassToggle(themeToggle, {
+        theme: root.dataset.theme === "dark" ? "dark" : "light",
+        onFrame: onGlassFrame,
+        // Without View Transitions (or with reduced motion) just switch.
+        onChange: (next) => { if (!canScrub()) setTheme(next); },
+      })
+    : null;
+
+if (!glassToggle) {
+  themeToggle?.addEventListener("click", () => {
+    const next = root.dataset.theme === "dark" ? "light" : "dark";
+    setTheme(next, toggleOrigin());
+  });
+}
 /* System preference changes update the site only when the user hasn't
    made an explicit choice. */
 const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
 systemDark.addEventListener?.("change", (e) => {
   let stored = null;
   try { stored = localStorage.getItem("theme"); } catch {}
-  if (!stored) applyTheme(e.matches ? "dark" : "light");
+  if (!stored) {
+    applyTheme(e.matches ? "dark" : "light");
+    glassToggle?.set(root.dataset.theme);
+  }
 });
 
 /* ---------- Full-screen menu (small screens) ---------- */
